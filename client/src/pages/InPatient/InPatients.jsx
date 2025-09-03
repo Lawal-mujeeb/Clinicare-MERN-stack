@@ -1,7 +1,6 @@
 import { getAllInpatients } from "@/api/inpatients";
 import PageWrapper from "@/components/PageWrapper";
 import Search from "@/components/Search";
-import AddInpatient from "@/features/inpatients/AddInpatient";
 import Filter from "@/features/inpatients/Filter";
 import usePaginate from "@/hooks/usePaginate";
 import { useAuth } from "@/store";
@@ -11,6 +10,7 @@ import ErrorAlert from "@/components/ErrorAlert";
 import { lazy, Suspense } from "react";
 import { SkeletonTable } from "@/components/LazyLoader";
 import Paginate from "@/components/Paginate";
+import AddInpatient from "@/features/inpatients/Addinpatient";
 const Table = lazy(() => import("@/features/inpatients/Table"));
 
 export default function Inpatients() {
