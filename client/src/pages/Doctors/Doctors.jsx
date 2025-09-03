@@ -68,8 +68,8 @@ export default function Doctors() {
                      <ErrorAlert error={error?.response?.data?.message} />
                    ) : (
                      <>
-                       {doctors?.length > 0 ? (
-                         <>
+                   
+                        
                            {/* <Suspense fallback={<SkeletonTable />}> */}
                              <Table  doctors={doctors} />
                            {/* </Suspense> */}
@@ -79,12 +79,7 @@ export default function Doctors() {
                              handlePageChange={handlePageChange}
                              currentPage={currentPage}
                            />
-                         </>
-                       ) : (
-                         <p className="mt-6 font-semibold text-center">
-                           No Doctors Found
-                         </p>
-                       )}
+                       
                      </>
                    )}
                  </>

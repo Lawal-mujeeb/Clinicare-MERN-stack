@@ -30,7 +30,7 @@ const app = express();
 //5 response is finally sent to client
 app.use(
   cors({
-    origin: ["http://localhost:4800"], //allow request from client adress
+    origin: ["http://localhost:4800", "https://clinicare-lawal-server.vercel.app"], //allow request from client adress
     credentials: true, //allow cookie to be sent
     method: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], //PERMITTED http methods
     optionsSuccessStatus: 200, //default status

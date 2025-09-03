@@ -24,7 +24,7 @@ export default function Appointments() {
   const endDate = searchParams.get("endDate") || "";
   const { isPending, isError, data, error } = useQuery({
     queryKey: [
-      "getAllApointments",
+      "getAllAppointments",
       page,
       limit,
       query,
@@ -70,8 +70,8 @@ export default function Appointments() {
             <ErrorAlert error={error?.response?.data?.message} />
           ) : (
             <>
-              {appointment?.length > 0 ? (
-                <>
+              
+               
                   <Suspense fallback={<SkeletonTable />}>
                     <Table appointment={appointment} />
                   </Suspense>
@@ -81,12 +81,8 @@ export default function Appointments() {
                     handlePageChange={handlePageChange}
                     currentPage={currentPage}
                   />
-                </>
-              ) : (
-                <p className="mt-6  font-semibold text-center">
-                  No appointments found
-                </p>
-              )}
+                
+             
             </>
           )}
         </>

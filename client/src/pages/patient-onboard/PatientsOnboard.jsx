@@ -94,7 +94,7 @@ export default function PatientsOnboard() {
         toast.success(response?.data?.message);
         //clear old user data
         queryClient.invalidateQueries({ queryKey: ["auth_user"] });
-         setCurrentStep(3);
+        //  setCurrentStep(3);
       }
     },
     onError: (error) => {
@@ -326,7 +326,7 @@ export default function PatientsOnboard() {
                     <input
                       type="text"
                       className="input w-full mb-1"
-                      placeholder=" Emergency contact "
+                      placeholder=" Emergency contact name "
                       {...register("emergencyContact")}
                       id="text"
                     />
