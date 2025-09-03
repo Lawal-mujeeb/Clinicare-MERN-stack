@@ -1,11 +1,19 @@
 import crypto from "crypto"; //we want to use crypto to help us generate numbers randomly Comes from Node.js's built-in crypto module.
 import bcrypt from "bcryptjs";
 import User from "../models/user.js";
+import Doctor from "../models/doctor.js";
+import Patient from "../models/patient.js";
+import Inpatient from "../models/inpatient.js";
 import mailService from "./email.service.js";
 import responseHandler from "../utils/responseHandler.js";
 import jwt from "jsonwebtoken"; //importing jwt to help us generate our token
 import { authenticateUser } from "../controllers/userController.js";
 const { errorResponse, notFoundResponse } = responseHandler;
+
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/cloudinary.js";
 
 // the full name email and sort we are calling it a parameter called userData and the next is going to call the error response or not foundresponse either one
 const userService = {
@@ -136,15 +144,15 @@ const userService = {
     await user.save();
     return user; //return user to our controller
   },
-// Why verificationToken & verificationTokenExpiry become undefined after verification:
-// In the code, these fields are explicitly reset to undefined both when the token is expired and when verification succeeds.
-// This is done to prevent token reuse and because verification is a one-time process — there’s no need to keep the token after the account is verified.
-// If a user is already verified, these fields will remain undefined because they were cleared at the time of the first successful verification.
-// Key point:
-// Clearing tokens after verification is a security best practice. Only keep them if you have a specific reason (e.g., audit logging)
-// You don’t want a verified account to still have a valid verification token in the database because:
-// That token could be reused by mistake or maliciously.
-// The verification process is one-time — after success, there’s no reason to keep the token.
+  // Why verificationToken & verificationTokenExpiry become undefined after verification:
+  // In the code, these fields are explicitly reset to undefined both when the token is expired and when verification succeeds.
+  // This is done to prevent token reuse and because verification is a one-time process — there’s no need to keep the token after the account is verified.
+  // If a user is already verified, these fields will remain undefined because they were cleared at the time of the first successful verification.
+  // Key point:
+  // Clearing tokens after verification is a security best practice. Only keep them if you have a specific reason (e.g., audit logging)
+  // You don’t want a verified account to still have a valid verification token in the database because:
+  // That token could be reused by mistake or maliciously.
+  // The verification process is one-time — after success, there’s no reason to keep the token.
 
   resendVerificationToken: async (userId, next) => {
     const user = await User.findById(userId).select(
@@ -172,7 +180,7 @@ const userService = {
     });
     return user;
   },
-  forgotPassword: async (userData, next)=> {
+  forgotPassword: async (userData, next) => {
     const user = await User.findOne({ email: userData.email });
     if (!user) {
       return next(notFoundResponse("Account not found"));
@@ -191,7 +199,7 @@ const userService = {
         await user.save();
         console.error("Failed to send password token", error);
       });
-    })
+    });
     return user;
   },
   resetPassword: async (userData, next) => {
@@ -235,14 +243,240 @@ const userService = {
   logout: async (req, res, next) => {
     res.cookie("userRefreshToken", "", {
       maxAge: 0,
-      httpOnly:true,
+      httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path: "/api/v1/auth/refresh-token", // the refreshtoken is the master key that why er clear it when we logout
     }); //for clearing the cookie during logout, bcs our cookie contains our refresh token, we don't want to make our cookie to be seen every where only on the specified path
     return true;
   },
-
+  uploadAvatar: async (userId, avatar, next) => {
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(notFoundResponse("No user found with that email"));
+    }
+    if (!avatar) {
+      return next(errorResponse("No file uploaded", 400));
+    }
+    //check if user has avatar already
+    const currentAvatar = user.avatar;
+    const currentAvatarId = user.avatarId;
+    if (currentAvatar) {
+      //if avatar exists, delete and replace with new avatar
+      await deleteFromCloudinary(currentAvatarId);
+    }
+    //Cloudinary returns: url → the link to the uploaded image,public_id → the unique Cloudinary ID (used for future delete/updates)
+    const { url, public_id } = await uploadToCloudinary(avatar, {
+      folder: "Clinicare/avatars",
+      width: 200,
+      height: 200,
+      crop: "fit",
+      format: "webp",
+    });
+    //Updates the user’s avatar (image URL) and avatarId (Cloudinary ID).
+    user.avatar = url || user.avatar;
+    user.avatarId = public_id || user.avatarId;
+    await user.save();
+    return user;
+  },
+  updateUserPassword: async (userId, userData, next) => {
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      return next(notFoundResponse("No user found with that email"));
+    }
+    const { password, newPassword, confirmPassword } = userData;
+    const [checkPassword, isPasswordSame] = await Promise.all([
+      bcrypt.compare(password, user.password),
+      bcrypt.compare(newPassword, user.password),
+    ]);
+    if (!checkPassword) {
+      return next(errorResponse("Incorrect current password", 400));
+    }
+    if (newPassword !== confirmPassword) {
+      return next(
+        errorResponse("New password and confirm password does not match", 400)
+      );
+    }
+    if (isPasswordSame) {
+      return next(
+        errorResponse("New password must be different from old password", 400)
+      );
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
+    const updatedUser = await user.save();
+    return updatedUser;
+  },
+  updateUser: async (userId, userData, next) => {
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(notFoundResponse("No user found with that email"));
+    }
+    if (userData.phone) {
+      const phoneExists = await User.findOne({ phone: userData.phone });
+      if (phoneExists) {
+        return next(errorResponse("Phone number already exists", 400));
+      }
+    }
+    //we are mapping over it instead of doing the normal method
+    for (const [key, value] of Object.entries(userData)) {
+      if (value) {
+        user[key] = value;
+      }
+    }
+    const updatedUser = await user.save();
+    return updatedUser;
+  },
+  deleteAccount: async (userId, next) => {
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(notFoundResponse("Account not found"));
+    }
+    if (user.avatarId) {
+      await deleteFromCloudinary(user.avatarId);
+    }
+    if (user.role === "patient") {
+      const patient = await Patient.findOne({ userId });
+      const inpatient = await Inpatient.findOne({ patientId: patient });
+      if (inpatient) {
+        await inpatient.deleteOne();
+      }
+      await Patient.findOneAndDelete({ userId });
+    }
+    if (user.role === "doctor") {
+      await Doctor.findOneAndDelete({ userId });
+    }
+    await user.deleteOne();
+    return true;
+  },
+  //page = which “slice” of users you want. limit = how many users per slice.
+  //limit → how many users per page (default 3).  //limit = 3 → each page shows 3 users. page = 1 → you get users 1–3. page = 2 → you get users 4–6.
+  //page = 3 → you get users 7–9.
+  getAllUsers: async (page = 1, limit = 3, query = "", role = "", next) => {
+    const sanitizeQuery = //
+      query || role //If query or role is given
+        ? (query || role).toLowerCase().replace(/[^\w\s]/gi, "") // default to lowercase, Removes special characters (regex [^\w\s] means: "anything that is not a word or whitespace"). so this prevent This prevents funky input like "Admin!!***" from breaking your regex.
+        : "";
+    const [users, total] = sanitizeQuery
+      ? //[ /* search mode */ ]
+        await Promise.all([
+          User.find({
+            $or: [
+              { fullname: { $regex: sanitizeQuery, $options: "i" } },
+              { role: { $regex: sanitizeQuery, $options: "i" } },
+            ],
+          })
+            .sort({ createdAt: -1 }) //Sort newest first.
+            .skip((page - 1) * limit) //Apply pagination (skip, limit). Page 1 → start at record 0.Page 2 → start at record 3.Page 3 → start at record 6.
+            .limit(limit),
+          // At the same time, it counts how many total users match that search:
+          User.countDocuments({
+            //the count is going to look for the result
+            $or: [
+              // or is telling us look for the user either in full name or role which we make refrence in our user or patient model
+              { fullname: { $regex: sanitizeQuery, $options: "i" } },
+              { role: { $regex: sanitizeQuery, $options: "i" } },
+            ],
+          }),
+        ])
+      : // [ /* no search, just list or fetch all users: */ ]
+        // It just returns all users, newest first, paginated. And counts all the users in the collection.
+        await Promise.all([
+          User.find()
+            .sort({ createdAt: -1 }) //sort by newest
+            .skip((page - 1) * limit) //apply pagination
+            .limit(limit),
+          User.countDocuments(),
+        ]);
+    if (!users) {
+      return next(notFoundResponse("No users found"));
+    }
+    return {
+      meta: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit), //computed from total / limit.
+        total, // total number of matching users found
+        hasMore: (page - 1) * limit + users.length < total, //true if there are more users beyond this page.
+        limit,
+      },
+      users,
+    };
+    //So in plain words:If you search → it filters users by name or role.If you don’t search → it just gives you everyone.Either way → you get a list of users + a count of how many exist
+  },
+  deleteAccountAdmins: async (userId, next) => {
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(notFoundResponse("Account not found"));
+    }
+    if (user.avatarId) {
+      await deleteFromCloudinary(user.avatarId);
+    }
+    if (user.role === "patient") {
+      const patient = await Patient.findOne({ userId });
+      const inpatient = await Inpatient.findOne({ patientId: patient });
+      if (inpatient) {
+        await inpatient.deleteOne();
+      }
+      await Patient.findOneAndDelete({ userId });
+    }
+    if (user.role === "doctor") {
+      await Doctor.findOneAndDelete({ userId });
+    }
+    await user.deleteOne();
+    return true;
+  },
+  updateUserRole: async (userId, userData, next) => {
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(notFoundResponse("No user found"));
+    }
+    if (user.role === "patient") {
+      return next(errorResponse("patient role cannot be updated "));
+    }
+    if (user.role === "admin" && userData.role !== "admin") {
+      return next(errorResponse("Admin cannot update or downgrade an admin"));
+    }
+    for (const [key, value] of Object.entries(userData)) {
+      if (value) {
+        user[key] = value;
+      }
+    }
+    const updatedUser = await user.save();
+    return updatedUser;
+  },
+  createUserAdmins: async (userData, next) => {
+    const emailExists = await User.findOne({ email: userData.email });
+    if (emailExists) {
+      return next(errorResponse("Email already exists", 400));
+    }
+    const verificationCode = crypto.randomInt(100000, 999999).toString();
+    const verificationCodeExpiry = new Date(Date.now() + 3600000);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPass = await bcrypt.hash(userData.password, salt);
+    const user = await User.create({
+      ...userData,
+      password: hashedPass,
+      verificationToken: verificationCode,
+      verificationTokenExpiry: verificationCodeExpiry,
+    });
+    process.nextTick(() => {
+      mailService
+        .sendWelcomeEmail(user, userData.password)
+        .catch(console.error);
+    });
+    if (user.role === "doctor") {
+      await Doctor.create({
+        userId: user._id,
+        availability: userData.availability,
+        specialization: userData.specialization,
+      });
+    }
+    if (!user) {
+      return next(errorResponse("User registration failed"));
+    }
+    return user;
+  },
 };
 
 export default userService;

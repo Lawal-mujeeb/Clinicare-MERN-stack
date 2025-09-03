@@ -6,6 +6,11 @@ import { bloodGroup } from "@/utils/constants";
 import { useEffect, useMemo, useState } from "react"; //use memos are used to avoid re-rendering of components when their props change. saying it would optimize a value when nothing changes
 import { formatDate } from "@/utils/constants";
 import { useAuth } from "@/store";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { registerPatient } from "@/api/patients";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
+import ErrorAlert from "@/components/ErrorAlert";
 
 export default function PatientsOnboard() {
   useMetaArgs({
@@ -13,19 +18,25 @@ export default function PatientsOnboard() {
     description: "Complete your patient profile",
     keywords: "Health, Register, Clinic, Hospital",
   });
+  const { user, accessToken } = useAuth(); //we want to get the user from the context
+  const [currentStep, setCurrentStep] = useState(
+    user?.isCompletedOnboard ? 3 : 1
+  );
+  const [field, setField] = useState(false); //we want to keep track of the input field
+  const [error, setError] = useState(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue, //responsible helping us fill the autofill field with the values we have when they register
-    watch,    // we use it to watchout if the input field is empty or not
+    watch, // we use it to watchout if the input field is empty or not
   } = useForm({
     resolver: zodResolver(validatePatientSchema),
   });
-  const [currentStep, setCurrentStep] = useState(1);
-  const [field, setField] = useState(false); //we want to keep track of the input field
-  const { user } = useAuth(); //we want to get the user from the context
 
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const gender = ["male", "female", "other"]; //we want to get the blood group options from the constants file
   const bloodGroupOptions = Object.entries(bloodGroup).map(([key, value]) => ({
     name: key,
@@ -57,25 +68,44 @@ export default function PatientsOnboard() {
     []
   );
 
-  const formValues = watch(); //we are invoking the watch hook to watch out for the changes in the input fields 
-  
+  const formValues = watch(); //we are invoking the watch hook to watch out for the changes in the input fields
 
   //we are using to automate the function and look out for the fieldss that are empty or not
   //we are using the errors and the formValues to check if the field is empty or not
   useEffect(() => {
+    //check
     const currentRequiredFiends =
       currentStep === 1 ? requiredFields1 : requiredFields2;
-    const hasEmptyFields = currentRequiredFiends.some( //some would give us true or false
+    const hasEmptyFields = currentRequiredFiends.some(
+      //some would give us true or false .some() checks if at least one item in the array passes the condition.
       (field) => !formValues[field] || formValues[field] === "" //checking to see if the field is empty or not
     );
-    const hasErrors = currentRequiredFiends.some((field) => errors[field]);  //checking to see if the field has an error based on our validation
+    const hasErrors = currentRequiredFiends.some((field) => errors[field]); //checking to see if the field has an error based on our validation
 
     setField(hasEmptyFields || hasErrors);
   }, [currentStep, errors, formValues, requiredFields1, requiredFields2]);
+  // This effect is basically a real-time form validator for multi-step forms: Look at the current step.Identify required fields for that step.
+  // Check if any are empty.Check if any have validation errors.Update state (setField) so you can control UI (e.g., disable/enable buttons).
 
+  const mutation = useMutation({
+    mutationFn: registerPatient,
+    onSuccess: (response) => {
+      if (response.status === 201) {
+        toast.success(response?.data?.message);
+        //clear old user data
+        queryClient.invalidateQueries({ queryKey: ["auth_user"] });
+         setCurrentStep(3);
+      }
+    },
+    onError: (error) => {
+     import.meta.env.DEV && console.log(error);
+      setError(
+        error?.response?.data?.message || "Error registering your details"
+      );
+    },
+  });
 
-
-//function that would would help us swap between our forms
+  //function that would would help us swap between our forms
   const handleStep = () => {
     if (currentStep === 1) {
       setCurrentStep(currentStep + 1);
@@ -84,18 +114,28 @@ export default function PatientsOnboard() {
     }
   };
 
+  const onSubmit = async (formData) => {
+    mutation.mutate({ formData, accessToken });
+  };
+
   return (
     <>
       <div className=" flex items-center justify-center min-h-[85vh] gap-2  ">
-        <form className=" w-full max-w-[600px] px-2 " onSubmit={handleSubmit()}>
+        <form
+          className=" w-full max-w-[600px] px-2 "
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <h1 className="text-center mb-5 text-2xl font-bold">
             Patients Onboard
           </h1>
           <fieldset className="fieldset bg-white border-base-300 rounded-box border gap-7 p-4">
             <p className=" text-base text-center font-medium">
-              Hello <span className="font-bold">{user?.fullname}</span>, Please
-              complete your patient profile
+              Hello <span className="font-bold">{user?.fullname}</span>,{" "}
+              {user?.isCompletedOnboard
+                ? "Onboarding completed"
+                : "please complete your patient profile"}
             </p>
+            {error && <ErrorAlert error={error} />}
             {/* this is the steps part when we move to each page */}
             <ul className="steps">
               <li
@@ -203,7 +243,7 @@ export default function PatientsOnboard() {
                 <div className=" md:flex gap-5">
                   <div className="flex flex-col w-full ">
                     <label className="label mb-2 text-black font-bold">
-                      Gender
+                     Role
                     </label>
                     <select
                       defaultValue={""}
@@ -334,6 +374,28 @@ export default function PatientsOnboard() {
                 </div>
               </>
             )}
+
+            {currentStep === 3 && (
+              <div className=" p-4 text-center">
+                <img
+                  src="/Success.svg"
+                  alt="success"
+                  className="w-full h-[200px]"
+                />
+                <h1 className="text-2xl font-bold">Congratulations!</h1>
+                <p className="text-gray-600">
+                  "Your account has been verified successfully."
+                </p>
+                <button
+                  className="btn my-4 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+                  size="lg"
+                  onClick={() => navigate("/dashboard", { replace: true })}
+                >
+                  Continue to dashboard
+                </button>
+              </div>
+            )}
+
             <div className=" flex md:justify-end gap-4">
               {currentStep === 1 && (
                 <button
@@ -355,9 +417,9 @@ export default function PatientsOnboard() {
                   <button
                     className="btn  bg-[#2B7FFF] hover:bg-[#1E5FCC] text-white  w-full md:w-[140px]"
                     type="submit"
-                    disabled={isSubmitting  ||  field }
+                    disabled={mutation.isPending || field}
                   >
-                    {isSubmitting ? "Submitting..." : "Submit"}
+                    {mutation.isPending ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               )}

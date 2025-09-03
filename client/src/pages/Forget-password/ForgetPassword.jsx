@@ -29,7 +29,7 @@ export default function ForgetPassword() {
     
     },
     onError: (error) => {
-      console.log(error);
+      import.meta.env.DEV && console.log(error);
       setError(error?.response?.data?.message || "Failed to send password link"  );
     },
   });

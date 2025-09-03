@@ -1,17 +1,23 @@
 import express from "express";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser"; // the cookie parser is usuall done here in the index.js
-import { globalErrorHandler, CatchNotFound, } from "./src/middlewares/errorHandler.js";
+import {
+  globalErrorHandler,
+  CatchNotFound,
+} from "./src/middlewares/errorHandler.js";
 import morgan from "morgan";
-import cors from "cors";;
+import cors from "cors";
 import { Timestamp } from "bson";
 
-
 //api routes
-import userRoutes from "./src/routes/userRoutes.js"
-import patientRoutes from "./src/routes/patientRoutes.js"
-
-
+import userRoutes from "./src/routes/userRoutes.js";
+import patientRoutes from "./src/routes/patientRoutes.js";
+import roomRoutes from "./src/routes/roomRoutes.js";
+import doctorRoutes from "./src/routes/doctorRoutes.js";
+import appointmentRoutes from "./src/routes/appointmentRoutes.js";
+import paymentRoutes from "./src/routes/paymentRoutes.js";
+import inpatientRoutes from "./src/routes/inpatientRoutes.js";
+import dashboardRoutes from "./src/routes/dashboardRoutes.js";
 
 //initialize our express app
 const app = express();
@@ -28,48 +34,51 @@ app.use(
     credentials: true, //allow cookie to be sent
     method: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], //PERMITTED http methods
     optionsSuccessStatus: 200, //default status
-  }
-))
-
-
+  })
+);
 
 // //anytime we want sent something to the client side convert it to a json format, that is what the middleware is doing, that before you send your file convert it first, and the limit is saying that our response must not be greater than 25mb in size
 if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev")) //morgan is a middleware, it logs http request to the terminal in dev mode
+  app.use(morgan("dev")); //morgan is a middleware, it logs http request to the terminal in dev mode
 }
-app.use(cookieParser()) // intialize cookie in our app
+app.use(cookieParser()); // intialize cookie in our app
 app.use(express.json({ limit: "25mb" })); //parses request gotten from client side in a body not greater than 25mb
 
 app.use(express.urlencoded({ extended: true, limits: "25mb" })); //useful for getting the large form submission in encoded formats such as base64 url strings where we set the content type of request body
 app.disable("x-powered-by"); //disable the tech stack used when sending response to the client. we dont want them to know because of hackers
 
-
 //get request time
 app.use((req, res, next) => {
-    req.requestTime = new Date().toISOString();
-    next();
-})
-
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 //test api route
-app.get("/", (req,res)=> {
-    res.status(200).json({
-        status: "Success",
-        message: "Server is running",
-        enviroment: process.env.NODE_ENV,
-        timestamp: req.requestTime,
-    })
-})
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "Success",
+    message: "Server is running",
+    enviroment: process.env.NODE_ENV,
+    timestamp: req.requestTime,
+  });
+});
 
 //assemble our api routes
-app.use("/api/V1/auth", userRoutes) // we want to look into the user routes folder for the user routes file
-app.use("/api/V1/patients", patientRoutes) 
+app.use("/api/v1/auth", userRoutes); // we want to look into the user routes folder for the user routes file
+app.use("/api/v1/patients", patientRoutes);
+app.use("/api/v1/rooms", roomRoutes);
+app.use("/api/v1/doctors", doctorRoutes);
+app.use("/api/v1/appointments", appointmentRoutes);
+app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/inpatients", inpatientRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
+
 
 //handle routes error
 app.use(CatchNotFound);
 
 //global error handler
-app.use(globalErrorHandler)
+app.use(globalErrorHandler);
 
 //database connection
 const connectDb = async () => {

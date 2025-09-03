@@ -1,5 +1,4 @@
 import mongoose, { Schema, model } from "mongoose";
-import { type } from "os";
 
 //note we define the user first then pass it to the model
 // initialize our schema
@@ -28,7 +27,6 @@ const userSchema = new Schema(
     },
     phone: {
       type: String,
-      maxlength: [14, "Phone number must not exceed 11 digits "],
       //when we set unique mongodb will be expecting a value, so we set default to empty string
     },
     avatar: {

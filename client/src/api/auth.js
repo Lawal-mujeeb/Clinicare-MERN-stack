@@ -54,4 +54,79 @@ export const logout = async (accessToken) => {
      { withCredentials: true });
      //when the body of your form is meant to be empty then you pass an empty objects, now because the logout is not meant to have a body that is why its empty and the reason why we have withCredentials is because we want store the cookie on the client side
 }
+//note when to use curlybracket and normal bracket
+export const uploadAvatar = async ({ formData, accessToken }) => {
+  return await axiosInstance.patch(
+    "/auth/upload-avatar",
+    formData,
+    headers(accessToken)
+  );
+};
 
+export const updateUserPassword = async ({ userData, accessToken }) => {
+  return await axiosInstance.patch(
+    "/auth/update-password",
+    userData,
+    headers(accessToken)
+  );
+};
+
+export const updateUserProfile = async ({ userData, accessToken }) => {
+  return await axiosInstance.patch(
+    "/auth/update-user",
+    userData,
+    headers(accessToken)
+  );
+};
+
+export const deleteAccount = async (accessToken) => {
+  return await axiosInstance.delete(
+    "/auth/delete-account",
+    headers(accessToken)
+  );
+};
+
+
+
+export const getAllUsers = async (searchParams, accessToken) => {
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
+  const query = searchParams.get("query") || "";
+  const role = searchParams.get("role") || "";
+  const params = new URLSearchParams(); //js
+  params.append("page", page);
+  params.append("limit", limit);
+  if (query) params.append("query", query);
+  if (role) params.append("role", role);
+  return await axiosInstance.get(
+    `/auth/all?${params.toString()}`,
+    headers(accessToken)
+  );
+};
+
+export const deleteAccountAdmins = async ({userId, accessToken}) => {
+  return await axiosInstance.delete(
+    `/auth/${userId}/delete-account`,
+    headers(accessToken)
+  );
+};
+
+
+
+export const updateUserRole = async ({ userId, role, accessToken }) => {
+  const response = await axiosInstance.patch(
+    `/auth/${userId}/update`,
+    role,
+    headers(accessToken)
+  );
+  return response.data;
+};
+
+
+export const createUserAdmins = async ({userData, accessToken}) => {
+  return await axiosInstance.post(
+    "/auth/create-user",
+    userData,
+    headers(accessToken)
+  );
+};

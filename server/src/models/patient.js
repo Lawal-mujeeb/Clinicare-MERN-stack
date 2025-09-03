@@ -2,7 +2,7 @@ import mongoose, { Schema, model } from "mongoose";
 
 const patientSchema = new Schema(
   {
-    userId: { //making refrence to the user model, objectID is a unique indentifier for document in mangodb
+    userId: { //making reference to the user model, objectID is a unique indentifier for document in mangodb
       type: Schema.Types.ObjectId, 
       ref: "User",
       required: [true, "User ID is required"],  //the userId id required to associate the patient with a specific user 
@@ -23,6 +23,7 @@ const patientSchema = new Schema(
     dateOfBirth: {
       type: Date,
       required: [true, "Date of birth is required"],
+    
     },
     phone: {
       type: String,
@@ -71,7 +72,6 @@ const patientSchema = new Schema(
 
 patientSchema.index({ fullname: 1 });
 patientSchema.index({ dateOfBirth: 1 });
-patientSchema.index({ phone: 1 });
 patientSchema.index({ address: 1 });
 patientSchema.index({ gender: 1 });
 patientSchema.index({ bloodGroup: 1 });

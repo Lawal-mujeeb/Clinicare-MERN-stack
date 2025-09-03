@@ -92,7 +92,7 @@ export default function Verify() {
       toast.success(response?.data?.message || "Verification token sent");
     },
     onError: (error) => {
-      console.log(error);
+     import.meta.env.DEV && console.log(error);
       setError(error?.response?.data?.message || "Verification code failed");
     },
   });
@@ -116,6 +116,15 @@ export default function Verify() {
     sendResendToken.mutate(accessToken);
   };
 
+
+
+  const redirect = ()=> {
+    if (user?.role === "patient") {
+      navigate("/patient-onboard");
+    }
+    navigate("/dashboard");
+  }
+
   return (
     <>
    
@@ -124,16 +133,15 @@ export default function Verify() {
             <img src="/Success.svg" alt="success" className="w-full h-full" />
             <h1 className="text-2xl font-bold">Congratulations!</h1>
             <p className="text-gray-600">
-              {user?.isVerified
-                ? "Your account has already been verified."
-                : "Your account has been verified successfully."}
+              
+                Your account has been verified successfully.
             </p>
             <button
               className=" btn my-4 bg-blue-500  hover:bg-blue-600 text-white cursor-pointer"
               size="lg"
-              onClick={() => navigate("/", { replace: true })}
+              onClick={redirect}
             >
-              Go back to home
+              Continue
             </button>
           </div></> : 
         <form

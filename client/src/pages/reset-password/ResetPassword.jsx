@@ -36,19 +36,17 @@ const [error, setError] = useState(null);
 //look for values on our url bar
 const email = searchParams.get("email");
 const token = searchParams.get("token");
-// console.log({email, token}) //to test if it working
 
 
 
 const mutation = useMutation({
     mutationFn: resetPassword,
     onSuccess: (response) => {
-      console.log(response)
       toast.success(response?.data?.message );
       navigate("/account/signin")
     },
     onError: (error) => {
-      console.log(error);
+     import.meta.env.DEV && console.log(error);
       setError(error?.response?.data?.message );
     },
   });

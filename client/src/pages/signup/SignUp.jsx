@@ -4,10 +4,11 @@ import { validateSignUpSchema } from "@/utils/dataSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useMetaArgs from "@/hooks/useMeta";
 import { registerUser } from "@/api/auth";
-import { useMutation,  } from "@tanstack/react-query";
-import {toast} from "sonner"
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import ErrorAlert from "@/components/ErrorAlert";
 import { useAuth } from "@/store/index";
+import { useNavigate } from "react-router";
 
 export default function SignUp() {
   useMetaArgs({
@@ -16,7 +17,7 @@ export default function SignUp() {
     keywords: "Health, Register, Clinic, Hospital",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError]= useState(null)
+  const [error, setError] = useState(null);
   const {
     register,
     handleSubmit,
@@ -24,7 +25,8 @@ export default function SignUp() {
   } = useForm({
     resolver: zodResolver(validateSignUpSchema),
   });
-  const { setAccessToken} = useAuth(); // we are using the useAuth hook to get the setAccessToken function from authprovider
+  const { setAccessToken, user } = useAuth(); // we are using the useAuth hook to get the setAccessToken function from authprovider
+  const navigate = useNavigate();
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -37,28 +39,27 @@ export default function SignUp() {
     mutationFn: registerUser,
     onSuccess: (response) => {
       //what to do if our api call was successful
-      // console.log(response);
-      toast.success(response?.data?.message || "Registration succesful"  );
+      toast.success(response?.data?.message || "Registration successful");
       //save accessToken
-       setAccessToken(response?.data?.accessToken)
+      setAccessToken(response?.data?.data?.accessToken);
+       if (!user?.isVerified) {
+        navigate("/verify-account")
+      }
     },
     onError: (error) => {
-      console.log(error);
+     import.meta.env.DEV && console.log(error);
       // toast.error(error?.response?.data?.message || "Registration Failed"  );
-      setError(error?.response?.data?.message  || "Registration Failed" );
+      setError(error?.response?.data?.message || "Registration Failed");
     },
   });
 
   const onSubmit = async (data) => {
-     mutation.mutate(data); //submiting our form to our mutation fuction to help us make the api call using the registerUser api
-  }
+    mutation.mutate(data); //submiting our form to our mutation fuction to help us make the api call using the registerUser api
+  };
 
-
-  
   return (
     <>
       <div className=" flex items-center justify-center min-h-[93vh] gap-2  w-full md:max-w-[350px] mx-auto ">
-       
         <form
           action=""
           className="mt-20 max-w-[400px]"
@@ -71,12 +72,12 @@ export default function SignUp() {
                 alt="user"
                 className="border-1 border-[#1176DA] rounded-full p-2  bg-white"
               />
-             
+
               <h1 className="text-2xl font-bold">Create Account</h1>
               <p className="text-gray-600 text-[1.05rem] mb-3">
                 Enter your details to sign up
               </p>
-                {error && <ErrorAlert error={error}   /> }
+              {error && <ErrorAlert error={error} />}
             </div>
             <label className="label font-bold  text-black ">Full name</label>
             <input
@@ -122,19 +123,14 @@ export default function SignUp() {
             {errors.password && (
               <p className="text-red-500">{errors.password.message}</p>
             )}
-            {/* <div>
-<select defaultValue="Pick a color" className="select">
-  <option disabled={true}>Pick a color</option>
-  <option>Crimson</option>
-  <option>Amber</option>
-  <option>Velvet</option>
-</select>
-</div> */}
+
             <button
               className="btn bg-[#2B7FFF] hover:bg-[#1E5FCC] mt-4 text-white"
               disabled={isSubmitting || mutation.isPending}
             >
-              {isSubmitting || mutation.isPending ? "Creating Account..." : "Create Account"}
+              {isSubmitting || mutation.isPending
+                ? "Creating Account..."
+                : "Create Account"}
             </button>
             <p className="text-sm text-gray-600 text-center">
               Already have an account?{" "}

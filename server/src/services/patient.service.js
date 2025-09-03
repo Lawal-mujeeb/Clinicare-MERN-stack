@@ -5,21 +5,99 @@ const { errorResponse, notFoundResponse } = responseHandler;
 
 const patientService = {
   register: async (userId, patientData, next) => {
+   
     const patientExists = await Patient.findOne({ email: patientData.email });
     if (patientExists) {
       return next(errorResponse("Patient already exists", 400));
     }
+    const patientPhone = await Patient.findOne({ phone: patientData.phone });
+if (patientPhone) {
+  return next(errorResponse("Phone number already exists", 400));
+}
+    //we are putting you in a new database called patient and also updating u
     const patient = await Patient.create({
       userId,
       ...patientData,
     });
-    //update and save user patient profile
+    //update and save user patient profile putting our user in our new patient folder
     const user = await User.findById(userId);
     user.isCompletedOnboard = true;
     user.phone = patientData.phone;
     user.dateOfBirth = patientData.dateOfBirth;
     await user.save();
     return patient;
+  },
+// Getting patient data from our Patient collection in MongoDB
+  getPatient: async (userId, next) => {
+     // Find patient with matching userId  userId.toString() ensures the ID is treated as a string (in case userId comes as an ObjectId or number).
+    const patient = await Patient.findOne({ userId: userId.toString() });
+    if (!patient) {
+      return next(notFoundResponse("No patient found"));
+    }
+    return patient;
+  },
+  updatePatient: async (patientId, patientData, next) => {
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return next(notFoundResponse("No patient found"));
+    }
+    for (const [key, value] of Object.entries(patientData)) {
+      if (value) {
+        patient[key] = value;
+      }
+    }
+    const updatedPatient = await patient.save();
+    return updatedPatient;
+  },
+  getAllPatients: async (
+    page = 1,
+    limit = 10,
+    query = "",
+    gender = "",
+    bloodGroup = "",
+    next
+  ) => {
+    const bloodGroupQuery = bloodGroup.replace(/[^\w+-]/gi, "");
+    const sanitizeQuery = query
+      ? query.toLowerCase().replace(/[^\w\s]/gi, "")
+      : "";
+    const [patients, total] =
+      sanitizeQuery || gender || bloodGroup
+        ? await Promise.all([
+            Patient.find({
+              $or: [{ fullname: { $regex: sanitizeQuery, $options: "i" } }],
+              ...(gender && { gender: gender.toLowerCase() }),
+              ...(bloodGroupQuery && { bloodGroup: bloodGroupQuery }),
+            })
+              .sort({ createdAt: -1 })
+              .skip((page - 1) * limit)
+              .limit(limit),
+            Patient.countDocuments({
+              $or: [{ fullname: { $regex: sanitizeQuery, $options: "i" } }],
+              ...(gender && { gender: gender.toLowerCase() }),
+              ...(bloodGroupQuery && { bloodGroup: bloodGroupQuery }),
+            }),
+          ])
+        : await Promise.all([
+            Patient.find()
+              .sort({ createdAt: -1 })
+              .skip((page - 1) * limit)
+              .limit(limit),
+            Patient.countDocuments(),
+          ]);
+    if (!patients) {
+      return next(notFoundResponse("No patients found"));
+    }
+    return {
+      meta: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        total,
+        hasMore: (page - 1) * limit + patients.length < total,
+        limit,
+      },
+      patients,
+    };
   },
 };
 

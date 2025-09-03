@@ -51,4 +51,4 @@ export const authorizedRoles = (...roles) => {
     next();
   };
 };
-//in the above code, we want
+//in the above code, we want to set rule that

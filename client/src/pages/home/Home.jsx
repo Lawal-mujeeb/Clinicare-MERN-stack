@@ -10,40 +10,49 @@ export default function Home() {
   });
   return (
     <>
-    <div className="bg-gradient-to-b from-[#E2EBFF] to-[#E5EDFF]">
-      <div className="   pt-50  px-4 max-w-[1440px]  min-h-[750px]  flex flex-col justify-end items-center mx-auto ">
-        <h1 className="text-[30px] md:text-[38px]  font-bold text-center">
-          Welcome to <br />
-          <span className="text-[#FF5703] text-6xl md:text-[70px]">Clinicare</span>
-        </h1>
-        <p className="mt-8 text-[#000000] md:w-[680px] lg:w-[790px] h-[58px] text-center md:text-[24px]">
-          Manage your hospital operations, patient records, and more with our
-          powerful hospital management system.
-        </p>
-        <div className="mt-20 flex gap-4 items-center">
-          <button className="  border rounded-lg py-[10px] px-[10px] md:py-[18px] md:px-[25px] bg-[#2465FF] text-white font-semibold md:text-[20px] hover:bg-blue-500">
-            <a href="/account/signup"> New Patient</a>
-          </button>
-          <button className="border-[1px] border-[#2465FF]  font-semibold  text-[#2465FF] hover:bg-slate-300 rounded-lg py-[10px] px-[10px] md:py-[18px] md:px-[25px]">
-            <a href="/account/signin">Login to Clinicare</a>
-          </button>
+      <div className="bg-gradient-to-b from-[#E2EBFF] to-[#E5EDFF]">
+        <div className="   pt-50  px-4 max-w-[1440px]  min-h-[750px]  flex flex-col justify-end items-center mx-auto ">
+          <h1 className="text-[30px] md:text-[38px]  font-bold text-center">
+            Welcome to <br />
+            <span className="text-[#FF5703] text-6xl md:text-[70px]">
+              Clinicare
+            </span>
+          </h1>
+          <p className="mt-8 text-[#000000] md:w-[680px] lg:w-[790px] h-[58px] text-center md:text-[24px]">
+            Manage your hospital operations, patient records, and more with our
+            powerful hospital management system.
+          </p>
+          <div className="mt-20 flex gap-4 items-center">
+            <button
+              className="border rounded-lg py-[10px] px-[10px] md:py-[18px] md:px-[25px] 
+             bg-[#2465FF] text-white font-semibold md:text-[20px] 
+             transition-all duration-500 ease-in-out 
+             hover:bg-blue-500 hover:rounded-full 
+             hover:scale-105 "
+            >
+              <a href="/account/signup">New Patient</a>
+            </button>
+            <button className="border-[1px] border-[#2465FF]  font-semibold  text-[#2465FF] hover:bg-slate-300 rounded-lg py-[10px] px-[10px] md:py-[18px] md:px-[25px]">
+              <a href="/account/signin">Login to Clinicare</a>
+            </button>
+          </div>
+          <div className=" max-w-[867px] md:w-[700px]  lg:w-[867px]  pt-20 ">
+            <img
+              src="Free iPad Pro mockup on a dark podium (Mockuuups Studio).png"
+              alt="hero-icon"
+            />
+          </div>
         </div>
-        <div className=" max-w-[867px] md:w-[700px]  lg:w-[867px]  pt-20 ">
-          <img
-            src="Free iPad Pro mockup on a dark podium (Mockuuups Studio).png"
-            alt="hero-icon"
-          />
-        </div>
-      </div>
       </div>
 
-        <Link
-      to="/contact"
-      className="fixed bottom-5 right-5 md:hidden z-50 bg-blue-600 text-white p-4 py-2 rounded-lg shadow"
-    >
-    <RiContactsBook2Line/>
-    </Link>
-       
+      <Link
+        to="/contact"
+        className="fixed bottom-5 right-5 md:hidden z-50 bg-blue-600 text-white p-4 py-2 rounded-full gap-2 shadow flex"
+      >
+        <RiContactsBook2Line />
+        <p>Contact Us</p>
+      </Link>
+
       <div className=" my-10 container mx-auto py-12 px-4    ">
         <div className=" md:max-w-[865px] mx-auto ">
           <h1 className="text-2xl md:text-[36px] text-[#130A5C] font-bold text-center">
@@ -58,11 +67,13 @@ export default function Home() {
         <div className="max-w-[1280px] mx-auto px-4">
           <div className="mt-8 grid grid-cols-12 gap-4">
             {/* <!-- Card 1 --> */}
-            <div className="col-span-12 md:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-5xl  shadow-lg flex flex-col items-start justify-start text-start">
+            <div className="col-span-12 md:col-span-6   lg:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg   flex flex-col items-start justify-start text-start">
               <div>
                 <img src="appointment.png" alt="user" />
               </div>
-              <h2 className="text-[24px] font-semibold">Appointment Scheduling</h2>
+              <h2 className="text-[24px] font-semibold">
+                Appointment Scheduling
+              </h2>
               <p className="text-zinc-800 mb-4">
                 Let patients book and reschedule appointments easily online with
                 real-time availability and automated confirmations.
@@ -70,9 +81,9 @@ export default function Home() {
             </div>
 
             {/* <!-- Card 2 --> */}
-            <div className="col-span-12 md:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg shadow-lg flex flex-col items-start justify-start text-start">
+            <div className="col-span-12  md:col-span-6   lg:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg  flex flex-col items-start justify-start text-start">
               <div>
-                <img src="appointment.png" alt="user" />
+                <img src="love.png" alt="user" />
               </div>
               <h2 className="text-[24px] font-semibold">
                 Doctor & Department Management
@@ -84,9 +95,9 @@ export default function Home() {
             </div>
 
             {/* <!-- Card 3 --> */}
-            <div className="col-span-12 md:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg shadow-lg flex flex-col items-start justify-start text-start">
+            <div className="col-span-12  md:col-span-6   lg:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg  flex flex-col items-start justify-start text-start">
               <div>
-                <img src="appointment.png" alt="user" />
+                <img src="Analytics.png" alt="user" />
               </div>
               <h2 className="text-[24px] font-semibold">Analytics Dashboard</h2>
               <p className="text-zinc-800 mb-4">
@@ -96,9 +107,9 @@ export default function Home() {
             </div>
 
             {/* <!-- Card 4 --> */}
-            <div className="col-span-12 md:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg shadow-lg flex flex-col items-start justify-start text-start">
+            <div className="col-span-12  md:col-span-6   lg:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg  flex flex-col items-start justify-start text-start">
               <div>
-                <img src="appointment.png" alt="user" />
+                <img src="Billing.png" alt="user" />
               </div>
               <h2 className="text-[24px] font-semibold">Billing & Invoicing</h2>
               <p className="text-zinc-800 mb-4">
@@ -108,9 +119,9 @@ export default function Home() {
             </div>
 
             {/* <!-- Card 5 --> */}
-            <div className="col-span-12 md:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg shadow-lg flex flex-col items-start justify-start text-start">
+            <div className="col-span-12  md:col-span-6   lg:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg  flex flex-col items-start justify-start text-start">
               <div>
-                <img src="appointment.png" alt="user" />
+                <img src="Bell.png" alt="user" />
               </div>
               <h2 className="text-[24px] font-semibold">Automated Reminders</h2>
               <p className="text-zinc-800 mb-4">
@@ -119,10 +130,10 @@ export default function Home() {
               </p>
             </div>
 
-            {/* <!-- Card 6 --> */}
-            <div className="col-span-12 md:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg shadow-lg flex flex-col items-start justify-start text-start">
+            {/* <!-- Card 6 --> md:col-span-4 */}
+            <div className="col-span-12  md:col-span-6   lg:col-span-4 bg-white p-[40px] pb-4 gap-[24px] min-h-[296px] w-full border-[1px] border-[#C7C4C4] rounded-lg  flex flex-col items-start justify-start text-start">
               <div>
-                <img src="appointment.png" alt="user" />
+                <img src="Electronics.png" alt="user" />
               </div>
               <h2 className="text-[22px] font-semibold">
                 Electronic Medical Records
@@ -135,8 +146,8 @@ export default function Home() {
           </div>
         </div>
       </div>
-{/* how it works */}
-      <div id="how-it-works" className="container mx-auto py-5 px-4 my-14" >
+      {/* how it works */}
+      <div id="how-it-works" className="container mx-auto py-5 px-4 my-14">
         <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-[#130A5C]">
             How It Works{" "}
@@ -146,19 +157,19 @@ export default function Home() {
             patient experience
           </p>
         </div>
-        <div className="grid grid-cols-12 gap-6 lg:gap-8 mt-8 relative" >
+        <div className="grid grid-cols-12 gap-6 lg:gap-8 mt-8 relative">
           <div className="hidden md:block lg:absolute left-1/2 top-0 h-full w-px bg-gray-300 transform -translate-x-1/2 z-0" />
           {/* hospital profile */}
-          <div className="md:flex justify-center items-center gap-8 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-0   ">
+          <div className="md:flex justify-center items-center gap-8 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-3   ">
             {/* text */}
             <div className=" max-w-xl">
-              <div className="flex items-center gap-2"> 
-              <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
-                <h1 className="font-bold text-white text-xl">1</h1>
-              </div>
-              <h2 className="text-xl font-semibold mb-2">
-                Sign Up and Set Up Your Hospital Profile
-              </h2>
+              <div className="flex items-center gap-2">
+                <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
+                  <h1 className="font-bold text-white text-xl">1</h1>
+                </div>
+                <h2 className="text-xl font-semibold mb-2">
+                  Sign Up and Set Up Your Hospital Profile
+                </h2>
               </div>
               <p className="text-zinc-800 mb-4 ">
                 Add departments, doctors, rooms, and schedules to create a
@@ -173,16 +184,16 @@ export default function Home() {
           </div>
 
           {/* online booking */}
-          <div className="md:flex flex-row-reverse justify-center items-center  gap-25 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-0 ">
+          <div className="md:flex flex-row-reverse justify-center items-center  gap-25 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-3 ">
             <div className=" max-w-xl">
-               <div className="flex items-center gap-2"> 
-              <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
-                <h1 className="font-bold text-white text-xl">2</h1>
+              <div className="flex items-center gap-2">
+                <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
+                  <h1 className="font-bold text-white text-xl">2</h1>
+                </div>
+                <h2 className="text-xl font-semibold mb-2">
+                  Enable Online Booking
+                </h2>
               </div>
-              <h2 className="text-xl font-semibold mb-2">
-                Enable Online Booking
-              </h2>
-               </div>
               <p className="text-zinc-800 mb-4">
                 Patients can view doctor availability and schedule appointments
                 online through an intuitive booking interface available 24/7.
@@ -194,16 +205,16 @@ export default function Home() {
             </div>
           </div>
           {/* appointment */}
-          <div className="md:flex justify-center items-center gap-8 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-0">
+          <div className="md:flex justify-center items-center gap-8 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-3">
             <div className=" max-w-xl">
-               <div className="flex items-center gap-2"> 
-              <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
-                <h1 className="font-bold text-white text-xl">3</h1>
+              <div className="flex items-center gap-2">
+                <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
+                  <h1 className="font-bold text-white text-xl">3</h1>
+                </div>
+                <h2 className="text-xl font-semibold mb-2">
+                  Manage Appointments And Record
+                </h2>
               </div>
-              <h2 className="text-xl font-semibold mb-2">
-                Manage Appointments And Record
-              </h2>
-            </div>
               <p className="text-zinc-800 mb-4">
                 Hospital staff can efficiently manage patient queues, update
                 medical records, and send automated reminders from a centralized
@@ -213,20 +224,24 @@ export default function Home() {
 
             {/* img */}
             <div>
-              <img src="sectionthree.png" alt="img of nurse" className="w-full" />
+              <img
+                src="sectionthree.png"
+                alt="img of nurse"
+                className="w-full"
+              />
             </div>
           </div>
           {/* track everything */}
-          <div className="md:flex flex-row-reverse justify-center items-center gap-25 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-0">
+          <div className="md:flex flex-row-reverse justify-center items-center gap-25 bg-white col-span-12 rounded-xl shadow-2xl lg:shadow-none p-2 md:p-3">
             <div className=" max-w-[520px]">
-               <div className="flex items-center gap-2"> 
-              <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
-                <h1 className="font-bold text-white text-xl">4</h1>
+              <div className="flex items-center gap-2">
+                <div className="bg-[#1055F8] rounded-full w-10 h-10 flex justify-center items-center mb-2">
+                  <h1 className="font-bold text-white text-xl">4</h1>
+                </div>
+                <h2 className="text-xl font-semibold mb-2">
+                  Track Everything In One Dashboard
+                </h2>
               </div>
-              <h2 className="text-xl font-semibold mb-2">
-                Track Everything In One Dashboard
-              </h2>
-            </div>
               <p className="text-zinc-800 mb-4">
                 View comprehensive analytics including appointments, patient
                 data, revenue metrics, and performance insights to optimize

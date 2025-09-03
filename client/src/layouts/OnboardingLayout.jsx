@@ -10,7 +10,6 @@ export default function RootLayout() {
       <div className="container mx-auto py-5 px-4 flex justify-between items-center  ">
         <Logo  />
           <Logout/>
-         {/* <button className="btn bg-red-500 text-white hover:bg-red-600 ">Logout</button> */}
       </div>
       </div>
       
@@ -21,7 +20,7 @@ export default function RootLayout() {
         <div className="flex justify-center md:justify-start  ">
           <RiCopyrightFill size={18} />
           <span className="text-sm">
-            {new Date().getFullYear} Clinicare. All rights reserved.
+            {new Date().getFullYear()} Clinicare. All rights reserved.
           </span>
         </div>
       </div>

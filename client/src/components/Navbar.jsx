@@ -30,7 +30,7 @@ export default function Navbar({ user }) {
               {user?.avatar ? (
                 <img
                   src={user?.avatar}
-                  alt={user?.fullname.split(" ")[0].charAt(0)}
+                  alt={user?.fullname}
                   referrerPolicy="no-referrer"
                   loading="lazy"
                   priority="high"

@@ -3,7 +3,7 @@ import Drawer from "./Drawer";
 
 
 
-export default function MobileNav() {
+export default function MobileNav({ user }) {
   return (
     <>
      <div className=" lg:hidden  fixed top-0 left-0 right-0 z-50 bg-[#F3F7FF] border-b-[1px] border-[#DAD7D7E5]  ">
@@ -19,7 +19,7 @@ export default function MobileNav() {
               <li>Contact Us</li>
             </a>
           </ul>
-          <Drawer/>
+          <Drawer user={user}/>
         </div>
       </div>
 
