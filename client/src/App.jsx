@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import AuthProvider from "./store/AuthProvider";
 
 
+
 const queryClient = new QueryClient();
 
 function App() {
