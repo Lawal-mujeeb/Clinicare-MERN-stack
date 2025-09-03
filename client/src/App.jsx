@@ -1,7 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "sonner";
-import AuthProvider from "./store/Authprovider";
+import AuthProvider from "./store/AuthProvider";
+
 
 const queryClient = new QueryClient();
 
