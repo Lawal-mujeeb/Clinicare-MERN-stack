@@ -10,27 +10,28 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null); //default value of logged in user , and we set and save it in state memory
   // const [isAuthenticating, setIsAuthenticating] = useState(false); 
 
-  // query to refresh access token on app start
-  useQuery({
+
+
+   //fetch refresh token user
+  const { isPending: isLoading, data: dataToken } = useQuery({
     queryKey: ["refresh_token"], // cache key for our api call and Acts as an ID for React Query’s cache and query tracking.
-    queryFn: async () => {
-      const res = await refreshAccessToken();
-      // make api calls to get new accessToken, then update it inour own accessToken state using setAccessToken setter function
-      if (res.status === 200) {
-        const newAccessToken = res.data?.data?.accessToken;
-        setAccessToken(newAccessToken); // update accessToken state
-        return res;
-      } else {
-        setAccessToken(null); //if res,status is not 200, set accessToken to null or remove the accessToken and force a logout
-        return null;
-      }
-    },
-    onError: async (error) => {
-      console.error("Error refreshing token", error);
-    },
-    enabled: !accessToken, // ensure it runs only when we don't have an accessToken, because that is when we need to refresh it
-    retry: false, //don't run or retry this query if the queryFn fails
-  });
+          queryFn:  () =>  refreshAccessToken(),
+           onError: async (error) => {
+        console.error("Error refreshing accessToken", error);
+        setAccessToken(null); //if error occurs while refreshing token, set accessToken to null or remove the accessToken and force a logout
+      },
+      enabled: !accessToken,  // ensure it runs only when we don't have an accessToken, because that is when we need to refresh it
+      retry: false,
+    });
+      
+
+     //set newaccessToken data
+   useEffect(() => {
+     if (dataToken?.status === 200) {
+       const newAccessToken = dataToken?.data?.data?.accessToken;
+       setAccessToken(newAccessToken);
+     }
+   }, [dataToken?.data?.data?.accessToken, dataToken?.status]);
 
   // fetching authenticated user data- 2 ways to use the useQuery hook either by destructuring the data or by using the data property
   //fetch auth user
@@ -43,15 +44,14 @@ export default function AuthProvider({ children }) {
     enabled: !!accessToken,
   });
 
+  //set user data
   useEffect(() => {
     if (data?.status === 200) {
       setUser(data?.data?.data);
     }
   }, [data?.data?.data, data?.status]);
-  
 
-
-  if (isPending && accessToken) {
+  if ((isPending && accessToken) || isLoading) {
     return <LazyLoader />;
   }
 

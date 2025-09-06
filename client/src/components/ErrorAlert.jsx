@@ -1,17 +1,20 @@
 import { RiErrorWarningLine } from "@remixicon/react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 
 //note our access token is saved in memory not in state  we are using useeffect to automatically load the page we checking the type of error if it a jwt, then it automataically refresh the access token
 
 export default function ErrorAlert({ error }) {
   const navigate = useNavigate();
-
+  const msgs = useMemo(
+    () => ["jwt expired", "Session expired. Please log in again."],
+    []
+  );
   useEffect(() => {
-    if (error === "jwt expired") {
+    if (msgs.includes(error)) {
       navigate(0);
     }
-  }, [error, navigate]);
+  }, [error, msgs, navigate]);
 
   //we want to render the error only when it not jwt type of error
   return (

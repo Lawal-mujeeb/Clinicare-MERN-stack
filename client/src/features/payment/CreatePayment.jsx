@@ -18,13 +18,11 @@ export default function CreatePayment() {
   const [msg, setMsg] = useState(null);
   const [err, setError] = useState(null);
   const { accessToken } = useAuth();
-  const  queryClient  = useQueryClient();
+  const queryClient = useQueryClient();
   const { isPending, data, error, isError } = useQuery({
     queryKey: ["getAppointmentsMeta", accessToken],
     queryFn: () => getAppointmentMeta(accessToken),
   });
-
-  
 
   const metaData = data?.data?.data;
   const {
@@ -103,9 +101,10 @@ export default function CreatePayment() {
   }
 
   const resetModal = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ["getAllPayments", "getPatientPayments"],
-    });
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["getPatientPayments"] }),
+      queryClient.invalidateQueries({ queryKey: ["getAllPayments"] }),
+    ]);
     setIsOpen(false);
     setShowSuccess(false);
     setError(null);
@@ -268,7 +267,7 @@ export default function CreatePayment() {
                   </p>
                 )}
               </div>
-             <div className="md:col-span-6">
+              <div className="md:col-span-6">
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend">Amount</legend>
                   <input

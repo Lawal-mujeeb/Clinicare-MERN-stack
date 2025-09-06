@@ -8,7 +8,7 @@ export default function DashboardLayout() {
   const {user} = useAuth()
   return (
     <>
-    <div className="min-h-[100dvh] bg-slate-100 flex">
+    <div className="min-h-[100dvh] bg-slate-100 lg:flex">
       {/* Sidebar */}
       <Sidebar user={user} />
 

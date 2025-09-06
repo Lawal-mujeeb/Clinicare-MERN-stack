@@ -2,15 +2,10 @@ import { useMemo } from "react";
 import {
   isRouteErrorResponse,
   useRouteError,
-  useNavigate,
-  useLocation,
 } from "react-router";
 
 export default function ErrorBoundary() {
-  const error = useRouteError();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from || "/";
+   const error = useRouteError();
   if (import.meta.env.DEV) {
     console.error(error);
   }
@@ -32,11 +27,7 @@ export default function ErrorBoundary() {
   const msgs = useMemo(() => ["jwt expired", "jwt malformed"], []);
 
   const redirect = () => {
-    if (msgs.includes(details)) {
-      window.location.reload();
-    } else {
-      navigate(from, {replace: true});
-    }
+     window.location.reload();
   };
 
   return (
